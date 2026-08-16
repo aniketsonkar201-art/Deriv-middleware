@@ -62,6 +62,30 @@ app.get("/price", async (req, res) => {
   }
 });
 
+app.get("/candles", async (req, res) => {
+  try {
+    const symbol = req.query.symbol || "R_100";
+    const granularity = parseInt(req.query.granularity) || 900;
+    const count = parseInt(req.query.count) || 100;
+
+    const result = await derivRequest({
+      ticks_history: symbol,
+      style: "candles",
+      granularity: granularity,
+      count: count,
+      end: "latest"
+    });
+
+    if (result.error) {
+      return res.status(400).json({ error: result.error.message });
+    }
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/buy", async (req, res) => {
   console.log("BUY ROUTE ENTERED. req.body =", req.body);
   try {
@@ -107,29 +131,3 @@ app.post("/buy", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-app.get("/candles", async (req, res) => {
-  try {
-    const symbol = req.query.symbol || "R_100";
-    const granularity = parseInt(req.query.granularity) || 900;
-    const count = parseInt(req.query.count) || 100;
-
-    const result = await derivRequest({
-      ticks_history: symbol,
-      style: "candles",
-      granularity: granularity,
-      count: count,
-      end: "latest"
-    });
-
-    if (result.error) {
-      return res.status(400).json({ error: result.error.message });
-    }
-
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
